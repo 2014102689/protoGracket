@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:protoGracket/main.dart';
+import 'package:http/http.dart' as http;
+import 'package:protoGracket/widgets/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -36,19 +38,17 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  signIn(String email, pass) async {
+  signIn(String username, password) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (BuildContext context) => MainPage()),
-        (Route<dynamic> route) => false);
-    /*
-    
-    Passing of input in main
-    para macheck ang status
-    
-    Map data = {'email': email, 'password': pass};
+    Map data = {
+      'action': "student_login",
+      'sis_username': username,
+      'sis_password': password
+    };
     var jsonResponse = null;
-    var response = await http.post("", body: data);
+    var response = await http.post(
+        "http://localhost/src/thesis_prototype/sis/includes/transactions/t-mobi-terminal.php",
+        body: data);
     if (response.statusCode == 200) {
       jsonResponse = json.decode(response.body);
       if (jsonResponse != null) {
@@ -57,16 +57,15 @@ class _LoginPageState extends State<LoginPage> {
         });
         sharedPreferences.setString("token", jsonResponse['token']);
         Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (BuildContext context) => MainPage()),
+            MaterialPageRoute(builder: (BuildContext context) => HomePage()),
             (Route<dynamic> route) => false);
       }
     } else {
       setState(() {
         _isLoading = false;
       });
-      print(response.body);
+      print("Network Error");
     }
-    */
   }
 
   Container buttonSection() {
@@ -76,14 +75,15 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.symmetric(horizontal: 15.0),
       margin: EdgeInsets.only(top: 15.0),
       child: RaisedButton(
-        onPressed: emailController.text == "" || passwordController.text == ""
-            ? null
-            : () {
-                setState(() {
-                  _isLoading = true;
-                });
-                signIn(emailController.text, passwordController.text);
-              },
+        onPressed:
+            usernameController.text == "" || passwordController.text == ""
+                ? null
+                : () {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    signIn(usernameController.text, passwordController.text);
+                  },
         elevation: 0.0,
         color: Colors.black,
         child: Text("Sign In", style: TextStyle(color: Colors.white70)),
@@ -92,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  final TextEditingController emailController = new TextEditingController();
+  final TextEditingController usernameController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
   Container textSection() {
@@ -101,15 +101,14 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         children: <Widget>[
           TextFormField(
-            controller: emailController,
-            cursorColor: Colors.white,
+            controller: usernameController,
+            cursorColor: Colors.black,
             style: TextStyle(color: Colors.black),
             decoration: InputDecoration(
-              icon: Icon(Icons.email, color: Colors.black),
-              hintText: "Email",
+              icon: Icon(Icons.person, color: Colors.black),
+              hintText: "Username",
               focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
+                  borderSide: BorderSide(color: Colors.black)),
               hintStyle: TextStyle(color: Colors.black),
             ),
           ),
@@ -123,8 +122,7 @@ class _LoginPageState extends State<LoginPage> {
               icon: Icon(Icons.lock, color: Colors.black),
               hintText: "Password",
               focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-              ),
+                  borderSide: BorderSide(color: Colors.black)),
               hintStyle: TextStyle(color: Colors.black),
             ),
           ),
