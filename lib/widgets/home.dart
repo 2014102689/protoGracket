@@ -22,6 +22,8 @@ class _HomePageState extends State<HomePage> {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (BuildContext context) => LoginPage()),
           (Route<dynamic> route) => false);
+    } else {
+      var student_id = sharedPreferences.getString("token");
     }
   }
 
@@ -29,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Code Land", style: TextStyle(color: Colors.white)),
+        title: Text("Gracket", style: TextStyle(color: Colors.white)),
         actions: <Widget>[
           FlatButton(
             onPressed: () {

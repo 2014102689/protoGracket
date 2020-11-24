@@ -21,9 +21,9 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-              colors: [Colors.grey[850], Colors.white],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter),
+              colors: [Colors.black, Colors.white],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight),
         ),
         child: _isLoading
             ? Center(child: CircularProgressIndicator())
@@ -38,16 +38,16 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  signIn(String username, password) async {
+  signIn(String action, String username, String password) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     Map data = {
-      'action': "student_login",
+      'sis_action': action,
       'sis_username': username,
       'sis_password': password
     };
     var jsonResponse = null;
     var response = await http.post(
-        "http://localhost/src/thesis_prototype/sis/includes/transactions/t-mobi-terminal.php",
+        "http://10.0.2.2/src/thesis_prototype/sis/includes/transactions/t-mobi-terminal.php",
         body: data);
     if (response.statusCode == 200) {
       jsonResponse = json.decode(response.body);
@@ -55,18 +55,42 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
-        sharedPreferences.setString("token", jsonResponse['token']);
+        sharedPreferences.setString("token", jsonResponse.toString());
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (BuildContext context) => HomePage()),
             (Route<dynamic> route) => false);
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        print("Incorrect Username and Password.");
       }
     } else {
       setState(() {
         _isLoading = false;
       });
-      print("Network Error");
+      print("Network Error.");
     }
   }
+
+  // signIn(String username, password) async {
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   var sis_username = username;
+  //   var sis_password = password;
+  //   if (sis_username == 'student' && sis_password == 'pass') {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //     Navigator.of(context).pushAndRemoveUntil(
+  //         MaterialPageRoute(builder: (BuildContext context) => HomePage()),
+  //         (Route<dynamic> route) => false);
+  //   } else {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //     print("Incorrect username and password.");
+  //   }
+  // }
 
   Container buttonSection() {
     return Container(
@@ -75,15 +99,16 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.symmetric(horizontal: 15.0),
       margin: EdgeInsets.only(top: 15.0),
       child: RaisedButton(
-        onPressed:
-            usernameController.text == "" || passwordController.text == ""
-                ? null
-                : () {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                    signIn(usernameController.text, passwordController.text);
-                  },
+        onPressed: usernameController.text == "" ||
+                passwordController.text == ""
+            ? null
+            : () {
+                setState(() {
+                  _isLoading = true;
+                });
+                signIn(
+                    action, usernameController.text, passwordController.text);
+              },
         elevation: 0.0,
         color: Colors.black,
         child: Text("Sign In", style: TextStyle(color: Colors.white70)),
@@ -94,6 +119,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController usernameController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
+  final action = "student_login";
 
   Container textSection() {
     return Container(
