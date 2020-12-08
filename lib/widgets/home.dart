@@ -22,8 +22,6 @@ class _HomePageState extends State<HomePage> {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (BuildContext context) => LoginPage()),
           (Route<dynamic> route) => false);
-    } else {
-      var student_id = sharedPreferences.getString("token");
     }
   }
 

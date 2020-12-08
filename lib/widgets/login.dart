@@ -38,17 +38,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  signIn(String action, String username, String password) async {
+  signIn(String email, String password) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    Map data = {
-      'sis_action': action,
-      'sis_username': username,
-      'sis_password': password
-    };
+    Map data = {'email': email, 'password': password};
     var jsonResponse = null;
-    var response = await http.post(
-        "http://10.0.2.2/src/thesis_prototype/sis/includes/transactions/t-mobi-terminal.php",
-        body: data);
+    var response = await http
+        .post("http://10.0.2.2/src/restful/public/api/auth/login", body: data);
     if (response.statusCode == 200) {
       jsonResponse = json.decode(response.body);
       if (jsonResponse != null) {
@@ -99,15 +94,13 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.symmetric(horizontal: 15.0),
       margin: EdgeInsets.only(top: 15.0),
       child: RaisedButton(
-        onPressed: usernameController.text == "" ||
-                passwordController.text == ""
+        onPressed: emailController.text == "" || passwordController.text == ""
             ? null
             : () {
                 setState(() {
                   _isLoading = true;
                 });
-                signIn(
-                    action, usernameController.text, passwordController.text);
+                signIn(emailController.text, passwordController.text);
               },
         elevation: 0.0,
         color: Colors.black,
@@ -117,9 +110,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  final TextEditingController usernameController = new TextEditingController();
+  final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
-  final action = "student_login";
 
   Container textSection() {
     return Container(
@@ -127,12 +119,12 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         children: <Widget>[
           TextFormField(
-            controller: usernameController,
+            controller: emailController,
             cursorColor: Colors.black,
             style: TextStyle(color: Colors.black),
             decoration: InputDecoration(
               icon: Icon(Icons.person, color: Colors.black),
-              hintText: "Username",
+              hintText: "Email",
               focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.black)),
               hintStyle: TextStyle(color: Colors.black),
