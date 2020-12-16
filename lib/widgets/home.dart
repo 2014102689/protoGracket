@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:protoGracket/widgets/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'bloc.navigation_bloc/navigation_bloc.dart';
+import 'sidebar/sidebar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -28,24 +31,19 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Gracket", style: TextStyle(color: Colors.white)),
-        actions: <Widget>[
-          FlatButton(
-            onPressed: () {
-              sharedPreferences.clear();
-              sharedPreferences.commit();
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => LoginPage()),
-                  (Route<dynamic> route) => false);
-            },
-            child: Text("Log Out", style: TextStyle(color: Colors.white)),
-          ),
-        ],
+      body: BlocProvider<NavigationBloc>(
+        create: (context) => NavigationBloc(),
+        child: Stack(
+          children: <Widget>[
+            BlocBuilder<NavigationBloc, NavigationStates>(
+              builder: (context, navigationState) {
+                return navigationState as Widget;
+              },
+            ),
+            SideBar(),
+          ],
+        ),
       ),
-      body: Center(child: Text("Main Page")),
-      drawer: Drawer(),
     );
   }
 }
