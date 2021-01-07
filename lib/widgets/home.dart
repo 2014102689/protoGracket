@@ -21,7 +21,8 @@ class _HomePageState extends State<HomePage> {
 
   checkLoginStatus() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getString("token") == null) {
+    // if (sharedPreferences.getString("id") == null) {
+    if (sharedPreferences == null) {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (BuildContext context) => LoginPage()),
           (Route<dynamic> route) => false);

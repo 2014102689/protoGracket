@@ -153,6 +153,15 @@ class _SideBarState extends State<SideBar>
                           endIndent: 32,
                         ),
                         MenuItem(
+                          icon: Icons.vpn_key,
+                          title: "Change Password",
+                          onTap: () {
+                            onIconPressed();
+                            BlocProvider.of<NavigationBloc>(context)
+                                .add(NavigationEvents.ChangePassClickedEvent);
+                          },
+                        ),
+                        MenuItem(
                           icon: Icons.perm_identity,
                           title: "About Gracket",
                           onTap: () {
