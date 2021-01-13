@@ -153,8 +153,8 @@ class _SideBarState extends State<SideBar>
                           endIndent: 32,
                         ),
                         MenuItem(
-                          icon: Icons.vpn_key,
-                          title: "Change Password",
+                          icon: Icons.settings,
+                          title: "Account Settings",
                           onTap: () {
                             onIconPressed();
                             BlocProvider.of<NavigationBloc>(context)

@@ -2,16 +2,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:protoGracket/widgets/home.dart';
-import 'package:protoGracket/widgets/signup.dart';
+import 'package:protoGracket/widgets/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatefulWidget {
+class SignupPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _SignupPageState createState() => _SignupPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignupPageState extends State<SignupPage> {
   bool _isLoading = false;
 
   @override
@@ -39,12 +38,13 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  signIn(String email, String password) async {
+  signIn(String id, String email, String password) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    Map data = {'email': email, 'password': password};
+    Map data = {'id': id, 'email': email, 'password': password};
     var jsonResponse = null;
-    var response = await http
-        .post("http://10.0.2.2/src/restful/public/api/auth/login", body: data);
+    var response = await http.post(
+        "http://10.0.2.2/src/restful/public/api/auth/register",
+        body: data);
     if (response.statusCode == 200) {
       jsonResponse = json.decode(response.body);
       if (jsonResponse != null) {
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
         sharedPreferences.setInt("id", jsonResponse['id']);
 
         Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (BuildContext context) => HomePage()),
+            MaterialPageRoute(builder: (BuildContext context) => LoginPage()),
             (Route<dynamic> route) => false);
       } else {
         setState(() {
@@ -72,25 +72,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // signIn(String username, password) async {
-  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  //   var sis_username = username;
-  //   var sis_password = password;
-  //   if (sis_username == 'student' && sis_password == 'pass') {
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //     Navigator.of(context).pushAndRemoveUntil(
-  //         MaterialPageRoute(builder: (BuildContext context) => HomePage()),
-  //         (Route<dynamic> route) => false);
-  //   } else {
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //     print("Incorrect username and password.");
-  //   }
-  // }
-
   Container buttonSection() {
     return Container(
       child: Column(
@@ -101,18 +82,20 @@ class _LoginPageState extends State<LoginPage> {
             padding: EdgeInsets.symmetric(horizontal: 15.0),
             margin: EdgeInsets.only(top: 15.0),
             child: RaisedButton(
-              onPressed:
-                  emailController.text == "" || passwordController.text == ""
-                      ? null
-                      : () {
-                          setState(() {
-                            _isLoading = true;
-                          });
-                          signIn(emailController.text, passwordController.text);
-                        },
+              onPressed: idController.text == "" ||
+                      emailController.text == "" ||
+                      passwordController.text == ""
+                  ? null
+                  : () {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      signIn(idController.text, emailController.text,
+                          passwordController.text);
+                    },
               elevation: 0.0,
               color: Colors.black,
-              child: Text("Sign In", style: TextStyle(color: Colors.white70)),
+              child: Text("Create", style: TextStyle(color: Colors.white70)),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5.0)),
             ),
@@ -125,11 +108,10 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: () {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                        builder: (BuildContext context) => SignupPage()),
+                        builder: (BuildContext context) => LoginPage()),
                     (Route<dynamic> route) => false);
               },
-              child:
-                  Text("Create Account", style: TextStyle(color: Colors.black)),
+              child: Text("< Back", style: TextStyle(color: Colors.black)),
             ),
           ),
         ],
@@ -137,14 +119,28 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  final TextEditingController idController = new TextEditingController();
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
 
   Container textSection() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
+      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 0.0),
       child: Column(
         children: <Widget>[
+          TextFormField(
+            controller: idController,
+            cursorColor: Colors.black,
+            style: TextStyle(color: Colors.black),
+            decoration: InputDecoration(
+              icon: Icon(Icons.person, color: Colors.black),
+              hintText: "ID No.",
+              focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black)),
+              hintStyle: TextStyle(color: Colors.black),
+            ),
+          ),
+          SizedBox(height: 30.0),
           TextFormField(
             controller: emailController,
             cursorColor: Colors.black,
@@ -201,11 +197,21 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           Container(
-            margin: EdgeInsets.only(top: 50.0),
-            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 130.0),
+            margin: EdgeInsets.only(top: 200.0),
+            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 0.0),
             child: Text(
               'Grade on Pocket',
               style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 250.0),
+            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 0.0),
+            child: Center(
+              child: Text(
+                'Create Account',
+                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+              ),
             ),
           )
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:protoGracket/widgets/login.dart';
 import '../bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +15,7 @@ class _ChangePassedState extends State<ChangePassed> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Change Password'),
+        title: Text('Account Settings'),
         backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
@@ -23,6 +24,7 @@ class _ChangePassedState extends State<ChangePassed> {
           children: <Widget>[
             textSection(),
             buttonSection(),
+            deleteAccountSection(),
           ],
         ),
       ),
@@ -54,6 +56,76 @@ class _ChangePassedState extends State<ChangePassed> {
     }
   }
 
+  deleteAccount() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String id = sharedPreferences.getInt("id").toString();
+    var jsonResponse = null;
+    var response = await http
+        .delete("http://10.0.2.2/src/restful/public/api/auth/delete/" + id);
+    if (response.statusCode == 200) {
+      jsonResponse = json.decode(response.body);
+      if (jsonResponse != null) {
+        if (jsonResponse['status'] == true) {
+          sharedPreferences.clear();
+          sharedPreferences.commit();
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (BuildContext context) => LoginPage()),
+              (Route<dynamic> route) => false);
+        }
+      }
+    } else {
+      print("Network Error.");
+    }
+  }
+
+  Container deleteAccountSection() {
+    return Container(
+      margin: EdgeInsets.only(top: 50.0),
+      child: Column(
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 10.0),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Delete Account',
+              style: TextStyle(
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.yellow[700]),
+            ),
+          ),
+          Container(
+            height: 1,
+            decoration: BoxDecoration(
+              color: Colors.black,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+            child: Text(
+              'Once you delete this account, there is no going back. Please be certain.',
+              style: TextStyle(fontSize: 15.0, color: Colors.red),
+            ),
+          ),
+          RaisedButton(
+            onPressed: () {
+              deleteAccount();
+            },
+            elevation: 0.0,
+            color: Colors.yellow[700],
+            child: Text("Delete Account",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Container buttonSection() {
     return Container(
       height: 40.0,
@@ -79,6 +151,17 @@ class _ChangePassedState extends State<ChangePassed> {
   Container textSection() {
     return Container(
       child: Column(children: <Widget>[
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 10.0),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Change Password',
+            style: TextStyle(
+                fontSize: 25.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue),
+          ),
+        ),
         TextFormField(
           controller: oldPassController,
           obscureText: true,
